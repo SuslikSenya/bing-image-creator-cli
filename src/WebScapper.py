@@ -102,6 +102,10 @@ class Scrapper:
 
         self.imagePrompt = input("Enter prompt: ")
 
+        if not self.imagePrompt:
+            print("Error: No prompt entered")
+            return
+
         prompt_input_element.send_keys(self.imagePrompt)
         prompt_input_element.submit()
 
@@ -113,8 +117,9 @@ class Scrapper:
                     EC.presence_of_element_located(
                         (
                             By.XPATH,
+                            "/html/body/div[3]/div/div[4]/div[1]/div/div/div[1]/div[1]/div/a"
                             # "/html/body/div[2]/div/div[5]/div[1]/div/div/div/ul[1]/li[1]/div/div/a",
-                            "/html/body/div[3]/div[1]/div[5]/div[1]/div[2]/div/div[1]/ul[1]/li[1]/div/div/a",
+                            # "/html/body/div[3]/div[1]/div[5]/div[1]/div[2]/div/div[1]/ul[1]/li[1]/div/div/a",
                         )
                     )
                 )
@@ -126,20 +131,29 @@ class Scrapper:
                 self.driver.get(self.driver.current_url)
 
     def save_image_urls(self) -> list[str]:
+
+        if self.imagePrompt is None:
+            print("Error: imagePrompt is None")
+            return []
+
         print("Saving image URLs...")
 
         # ? Image xPaths
         image_path_1 = (
-            "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[1]/li[1]/div/div/a"
+            # "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[1]/li[1]/div/div/a"
+            "/html/body/div[3]/div/div[4]/div[1]/div/div/div[1]/div[1]/div/a"
         )
         image_path_2 = (
-            "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[1]/li[2]/div/div/a"
+            # "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[1]/li[2]/div/div/a"
+            "/html/body/div[3]/div/div[4]/div[1]/div/div/div[1]/div[2]/div/a"
         )
         image_path_3 = (
-            "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[2]/li[1]/div/div/a"
+            # "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[2]/li[1]/div/div/a"
+            "/html/body/div[3]/div/div[4]/div[1]/div/div/div[1]/div[3]/div/a"
         )
         image_path_4 = (
-            "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[2]/li[2]/div/div/a"
+            # "/html/body/div[3]/div/div[5]/div[1]/div/div/div[1]/ul[2]/li[2]/div/div/a"
+            "/html/body/div[3]/div/div[4]/div[1]/div/div/div[1]/div[4]/div/a"
         )
 
         # ? This has to be a try block because Bing doesn't always produce 4 images.
@@ -263,8 +277,13 @@ class Scrapper:
         global is_first_image
 
         while True:
+            print("Starting image generation process")
             self.generate_image()
+            print("Generated image, now saving URLs")
             urls = self.save_image_urls()
+            if not urls:
+                print("No URLs found, stopping process")
+                break
             self.save_images(urls=urls[1:])
 
             if input("Generate another image? (y/n): ") == "n":
